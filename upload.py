@@ -1,7 +1,7 @@
 import requests
 import redis
 
-API_KEY = "AIzaSyCB_Ce9iE8BPTA5JYKl6dIDCkJZOBxgjyg"
+API_KEY = ""
 CHANNEL_NAME = "lexfridman"
 r = redis.Redis(host="localhost", port=6379, decode_responses=True)
 
