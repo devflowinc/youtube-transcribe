@@ -2,11 +2,11 @@ import requests
 import redis
 
 API_KEY = ""
-CHANNEL_NAME = "lexfridman"
+CHANNEL_ID = "UCIBgYfDjtWlbJhg--Z4sOgQ"
 r = redis.Redis(host="localhost", port=6379, decode_responses=True)
 
 playlist_id = requests.get(
-    f"https://youtube.googleapis.com/youtube/v3/channels?part=snippet%2CcontentDetails%2Cstatistics&forUsername={CHANNEL_NAME}&key={API_KEY}"
+    f"https://youtube.googleapis.com/youtube/v3/channels?part=snippet%2CcontentDetails%2Cstatistics&id={CHANNEL_ID}&key={API_KEY}"
 ).json()["items"][0]["contentDetails"]["relatedPlaylists"]["uploads"]
 
 # Make a request to the YouTube Data API
