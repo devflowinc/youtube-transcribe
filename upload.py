@@ -38,7 +38,7 @@ while "nextPageToken" in response.json():
         for video in videos:
             total += 1
             r.set(
-                f'Upload: https://www.youtube.com/watch?v={video["contentDetails"]["videoId"]}',
+                f'Upload: {video["contentDetails"]["videoId"]}',
                 video["snippet"]["title"],
             )
             print(total)
