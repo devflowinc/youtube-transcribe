@@ -1,9 +1,12 @@
 import redis
 from youtube_transcript_api import YouTubeTranscriptApi
 from pytube import YouTube
-import requests
-import json
 import math
+from punctuators.models import PunctCapSegModelONNX
+
+m: PunctCapSegModelONNX = PunctCapSegModelONNX.from_pretrained(
+    "1-800-BAD-CODE/xlm-roberta_punctuation_fullstop_truecase"
+)
 
 def pop_in_progress():
     lua_script = """
@@ -32,14 +35,16 @@ while video_data:
     print(f"Processing {video_id}||{video_title}")
 
     try:
-        transcript = YouTubeTranscriptApi.get_transcript(video_id=video_id)
+        transcript = YouTubeTranscriptApi.get_transcript(video_id=video_id, languages=('en', 'en-US'))
         info = YouTube(video_url)
-        for start in range(0, len(transcript), 20):
-            end = min(start + 20, len(transcript))
+        for start in range(0, len(transcript), 30):
+            end = min(start + 30, len(transcript))
             chunk = transcript[start:end]
-            text = " ".join([i["text"] for i in chunk])
+            text = " ".join([i["text"] for i in chunk]).replace("\n", " ")
+            puncuated_text = m.infer(texts=[text], apply_sbd=False)[0]
+            print("CHUNK:", puncuated_text)
             data = {
-                "card_html": text,
+                "card_html": puncuated_text,
                 "link": video_url + f"&t={math.floor(chunk[0]['start'])}",
                 "private": False,
                 "metadata": {

@@ -9,7 +9,8 @@ API_KEY = os.environ.get("API_KEY")
 CHANNEL_ID = os.environ.get("CHANNEL_ID")
 REDIS_URL = os.environ.get("REDIS_URL")
 
-r = redis.StrictRedis.from_url(REDIS_URL, decode_responses=True)
+r = redis.from_url(url=REDIS_URL, decode_responses=True, db=0)
+r.ping()
 
 playlist_id = requests.get(
     f"https://youtube.googleapis.com/youtube/v3/channels?part=snippet%2CcontentDetails%2Cstatistics&id={CHANNEL_ID}&key={API_KEY}"
@@ -36,8 +37,8 @@ def handle_video(video):
         print(f"Processing {videoIdPlusTitle}")
         r.sadd("in-progress", videoIdPlusTitle)
 
-    except:
-        print("Error handling video")
+    except Exception as e:
+        print("Error handling video", e)
 
 if response.status_code == 200:
     data = response.json()
