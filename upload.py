@@ -1,9 +1,15 @@
 import requests
 import redis
+from dotenv import load_dotenv
+import os
 
-API_KEY = ""
-CHANNEL_ID = "UCIBgYfDjtWlbJhg--Z4sOgQ"
-r = redis.Redis(host="localhost", port=6379, decode_responses=True)
+load_dotenv()
+
+API_KEY = os.environ.get("API_KEY")
+CHANNEL_ID = os.environ.get("CHANNEL_ID")
+REDIS_URL = os.environ.get("REDIS_URL")
+
+r = redis.StrictRedis.from_url(REDIS_URL, decode_responses=True)
 
 playlist_id = requests.get(
     f"https://youtube.googleapis.com/youtube/v3/channels?part=snippet%2CcontentDetails%2Cstatistics&id={CHANNEL_ID}&key={API_KEY}"
@@ -13,8 +19,10 @@ playlist_id = requests.get(
 response = requests.get(
     f"https://youtube.googleapis.com/youtube/v3/playlistItems?part=snippet%2CcontentDetails%2Cstatus&maxResults=100&playlistId={playlist_id}&key={API_KEY}"
 )
+
 length = 0
 total = 0
+
 if response.status_code == 200:
     data = response.json()
     videos = data.get("items", [])
