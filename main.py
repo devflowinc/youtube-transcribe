@@ -5,27 +5,42 @@ import requests
 import json
 import math
 
+def pop_in_progress():
+    lua_script = """
+    local item = redis.call('spop', KEYS[1])
+    if item then
+        redis.call('sadd', KEYS[2], item)
+    end
+    return item
+    """
+
+    keys = ["in-progress", "completed"]
+    result = r.eval(lua_script, 2, *keys)
+    return result
 
 # Connect to Redis
 r = redis.Redis(host="localhost", port=6379, decode_responses=True)
 # Get all the keys
 keys = r.keys()
 
-# Print the keys
-for key in keys:
+video_data = pop_in_progress()
+while video_data:
+    video_id = video_data.split("||")[0]
+    video_title = video_data.split("||")[1]
+    video_url = f"https://www.youtube.com/watch?v={video_id}"
+
+    print(f"Processing {video_id}||{video_title}")
+
     try:
-        video_url = key[8:]  # @param {type:"string"}
-        print(video_url)
-        transcript = YouTubeTranscriptApi.get_transcript(video_url)
-        video_url_link = "https://www.youtube.com/watch?v=" + video_url
-        info = YouTube(video_url_link)
+        transcript = YouTubeTranscriptApi.get_transcript(video_id=video_id)
+        info = YouTube(video_url)
         for start in range(0, len(transcript), 20):
             end = min(start + 20, len(transcript))
             chunk = transcript[start:end]
             text = " ".join([i["text"] for i in chunk])
             data = {
                 "card_html": text,
-                "link": video_url_link + f"&t={math.floor(chunk[0]['start'])}",
+                "link": video_url + f"&t={math.floor(chunk[0]['start'])}",
                 "private": False,
                 "metadata": {
                     "Title": info.title,
@@ -36,19 +51,7 @@ for key in keys:
                     "Uploaded At": info.publish_date.strftime("%Y-%m-%d %H:%M:%S"),
                 },
             }
-            print(data)
-        #     response = requests.post(
-        #         "http://localhost:8090/api/card", json=json.dumps(data)
-        #     )
-        #     print(video_url + f"&t={math.floor(chunk[0]['start'])}")
-        #     if response.status_code != 200:
-        #         print(f"Error: {response.text}")
-        #     r.set(
-        #         "Error: " + video_url + f"&t={math.floor(chunk[0]['start'])}",
-        #         "Error",
-        #     )
-        # r.delete(key)
     except Exception as e:
         print("Error: " + str(e))
-        # r.set("Error: " + video_url, "Error")
-        continue
+
+    video_data = pop_in_progress()

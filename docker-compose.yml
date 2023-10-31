@@ -1,12 +1,15 @@
+version: '3'
+
 services:
   redis:
     image: redis
-    container_name: my-redis
+    container_name: yt-redis
     restart: always
     ports:
       - "6379:6379"
     volumes:
       - redis-data:/data
+    command: redis-server --requirepass ${REDIS_PASSWORD}
 
 volumes:
   redis-data:

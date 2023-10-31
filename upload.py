@@ -20,20 +20,30 @@ response = requests.get(
     f"https://youtube.googleapis.com/youtube/v3/playlistItems?part=snippet%2CcontentDetails%2Cstatus&maxResults=100&playlistId={playlist_id}&key={API_KEY}"
 )
 
-length = 0
-total = 0
+def handle_video(video):
+    try:
+        videoId = video["contentDetails"]["videoId"]
+        videoTitle = video["snippet"]["title"]
+        videoIdPlusTitle = f"{videoId}||{videoTitle}"
+
+        if r.sismember("completed", videoIdPlusTitle):
+            print(f"Completed {videoIdPlusTitle}")
+            return
+        if r.sismember("in-progress", videoIdPlusTitle):
+            print(f"In progress {videoIdPlusTitle}")
+            return
+        
+        print(f"Processing {videoIdPlusTitle}")
+        r.sadd("in-progress", videoIdPlusTitle)
+
+    except:
+        print("Error handling video")
 
 if response.status_code == 200:
     data = response.json()
     videos = data.get("items", [])
     for video in videos:
-        total += 1
-        r.set(
-            f'Upload: https://www.youtube.com/watch?v={video["contentDetails"]["videoId"]}',
-            video["snippet"]["title"],
-        )
-        print(total)
-
+        handle_video(video)
 
 while "nextPageToken" in response.json():
     nextPageToken = response.json()["nextPageToken"]
@@ -44,11 +54,6 @@ while "nextPageToken" in response.json():
         data = response.json()
         videos = data.get("items", [])
         for video in videos:
-            total += 1
-            r.set(
-                f'Upload: {video["contentDetails"]["videoId"]}',
-                video["snippet"]["title"],
-            )
-            print(total)
+            handle_video(video)
     else:
         print(f"Error: {response.text}")
