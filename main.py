@@ -12,6 +12,7 @@ load_dotenv()
 
 ARGUFLOW_API_KEY = os.environ.get("ARGUFLOW_API_KEY")
 ARGUFLOW_API_URL = os.environ.get("ARGUFLOW_API_URL")
+REDIS_URL = os.environ.get("REDIS_URL")
 
 class Card:
     def __init__(self, card_html, link, metadata_dict):
@@ -69,7 +70,7 @@ def pop_in_progress():
     result = r.eval(lua_script, 2, *keys)
     return result
 
-r = redis.Redis(host="localhost", port=6379, decode_responses=True)
+r = redis.from_url(url=REDIS_URL, decode_responses=True, db=0)
 r.ping()
 
 video_data = pop_in_progress()
