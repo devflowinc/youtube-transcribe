@@ -42,7 +42,6 @@ while video_data:
             chunk = transcript[start:end]
             text = " ".join([i["text"] for i in chunk]).replace("\n", " ")
             puncuated_text = m.infer(texts=[text], apply_sbd=False)[0]
-            print("CHUNK:", puncuated_text)
             data = {
                 "card_html": puncuated_text,
                 "link": video_url + f"&t={math.floor(chunk[0]['start'])}",
