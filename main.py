@@ -21,10 +21,8 @@ def pop_in_progress():
     result = r.eval(lua_script, 2, *keys)
     return result
 
-# Connect to Redis
 r = redis.Redis(host="localhost", port=6379, decode_responses=True)
-# Get all the keys
-keys = r.keys()
+r.ping()
 
 video_data = pop_in_progress()
 while video_data:
