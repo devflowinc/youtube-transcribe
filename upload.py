@@ -54,6 +54,7 @@ if __name__ == "__main__":
             videoIdPlusTitle = f"{videoId}||{videoTitle}"
             print(videoIdPlusTitle)
             handle_videoIdPlusTitle(videoIdPlusTitle)
+            exit(0)
 
     playlist_id = requests.get(
         f"https://youtube.googleapis.com/youtube/v3/channels?part=snippet%2CcontentDetails%2Cstatistics&id={CHANNEL_ID}&key={YOUTUBE_API_KEY}"
