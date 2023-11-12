@@ -35,6 +35,10 @@ ARGUFLOW_API_KEY=af-********************************
 
 `python ./upload.py`
 
+## Second option to only add single video
+
+`python ./upload.py <video_id>`
+
 ## Get the raw transcripts of the videos, punctuate them, then upload to your Arguflow instance 
 
 You should typically run at least 6 of `main.py` process in parallel. 
