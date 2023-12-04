@@ -16,10 +16,11 @@ ARGUFLOW_API_URL = os.environ.get("ARGUFLOW_API_URL")
 REDIS_URL = os.environ.get("REDIS_URL")
 
 class Card:
-    def __init__(self, card_html, link, metadata_dict):
+    def __init__(self, card_html, link, metadata_dict, time_stamp):
         self.card_html = card_html
         self.link = link
         self.metadata = metadata_dict
+        self.time_stamp = time_stamp
         if not self.metadata:
             print("Missing metadata.")
             exit(1)
@@ -99,7 +100,7 @@ while video_data:
                 "Uploaded At": info.publish_date.strftime("%Y-%m-%d %H:%M:%S"),
             }
             link = video_url + f"&t={math.floor(chunk[0]['start'])}"
-            card = Card(puncuated_text, link, metadata)
+            card = Card(puncuated_text, link, metadata, info.publish_date.strftime("%Y-%m-%d %H:%M:%S"))
             card.send_post_request()
     except Exception as e:
         print("Error: " + str(e))
